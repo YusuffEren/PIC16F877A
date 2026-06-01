@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "title": "PIC16F877A Digital Clock Simulation",
+    "description": "Interactive web simulation of a real-time clock system. Experience the PIC16F877A microcontroller, LCD display, and button controls in your browser."
+  },
+  "nav": {
+    "langSwitcher": "Switch language"
+  },
+  "hero": {
+    "title": "PIC16F877A Digital Clock",
+    "subtitle": "An interactive web-based simulation of a real-time clock system. Experience the microcontroller, LCD display, and button controls right in your browser.",
+    "labels": {
+      "hourUp": "Hour +",
+      "hourDown": "Hour −",
+      "minUp": "Minute +",
+      "minDown": "Minute −"
+    },
+    "badges": {
+      "hourUp": "RB0 → Hour+",
+      "hourDown": "RB1 → Hour−",
+      "minUp": "RB2 → Min+",
+      "minDown": "RB3 → Min−"
+    },
+    "legend": {
+      "hourUp": "Hour Up (RB0)",
+      "hourDown": "Hour Down (RB1)",
+      "minUp": "Minute Up (RB2)",
+      "minDown": "Minute Down (RB3)"
+    }
+  },
+  "simulation": {
+    "title": "Interactive Simulation",
+    "description": "Interact with hardware components. Press the buttons to adjust the time. The LCD display mimics the PIC16F877A's Timer1 interrupt logic.",
+    "status": {
+      "active": "Timer1 Active (50ms)",
+      "stopped": "Stopped",
+      "stop": "Stop",
+      "start": "Start"
+    },
+    "labels": {
+      "hourUp": "Hour +",
+      "hourDown": "Hour −",
+      "minUp": "Minute +",
+      "minDown": "Minute −"
+    },
+    "chips": {
+      "interruptCounter": "Interrupt Counter",
+      "xtalFreq": "_XTAL_FREQ: 20MHz",
+      "lcdMode": "4-bit LCD Mode",
+      "compiler": "XC8 Compiler"
+    }
+  },
+  "walkthrough": {
+    "title": "Code & Hardware Walkthrough",
+    "description": "Scroll down to inspect each section of the C code. The hardware components on the left highlight in sync with the relevant code block on screen.",
+    "hardwarePanel": "Hardware View",
+    "sections": {
+      "config": {
+        "title": "Configuration & Pin Definitions",
+        "explanation": {
+          "title": "What does this section do?",
+          "paragraphs": [
+            "Before the microcontroller starts, configuration bits define how the hardware behaves. The `#pragma config` lines set the oscillator mode (HS — High Speed), watchdog timer (WDTE), and power-up timer (PWRTE).",
+            "Pin definitions make the rest of the code readable by using meaningful names like `RS`, `EN`, and `D4`. The LCD is driven through PORTD and PORTC, while buttons are read from PORTB (RB0–RB3). This creates a direct mapping between software and hardware."
+          ],
+          "bullets": [
+            "HS mode allows high-speed operation with a 20 MHz crystal.",
+            "WDTE = OFF prevents the device from resetting itself automatically.",
+            "LVP = OFF disables low-voltage programming.",
+            "Buttons are set as inputs with `TRISB = 0x0F`; LCD pins are outputs with `TRISD = 0x00`."
+          ]
+        }
+      },
+      "lcd": {
+        "title": "LCD Setup & Command Functions",
+        "explanation": {
+          "title": "How does the LCD work?",
+          "paragraphs": [
+            "The LCD operates in 4-bit mode. Instead of 8 data lines, only D4–D7 are used, saving pins on the PIC. Every command or character is sent in two halves: the high nibble first, then the low nibble.",
+            "The `Lcd_Hazirla()` function sends the required initialization sequence (0x30, 0x20, 0x28, 0x0C, 0x06, 0x01). `0x28` selects 4-bit mode and 2 lines, `0x0C` turns the display on with no cursor, and `0x01` clears the screen. `Lcd_Git()` positions the cursor at a specific row and column."
+          ],
+          "bullets": [
+            "4-bit mode splits data into two nibbles, saving I/O pins.",
+            "RS = 0 sends a command; RS = 1 sends data (a character).",
+            "A short pulse on the EN pin tells the LCD to latch the command.",
+            "A 2 ms delay after each command gives the LCD time to process."
+          ]
+        }
+      },
+      "timer": {
+        "title": "Timer1 Interrupt",
+        "explanation": {
+          "title": "How does Timer1 keep time?",
+          "paragraphs": [
+            "With a 20 MHz crystal and a 1:8 prescaler, Timer1 overflows approximately every 50 milliseconds. The interrupt service routine (`__interrupt`) fires on each overflow and increments a counter variable called `kesme_sayaci`.",
+            "When the counter reaches 20 (20 × 50 ms = 1000 ms = 1 second), a full second has elapsed. At this point the seconds variable is incremented; when it passes 60, minutes roll over; when minutes pass 60, hours roll over. When hours reach 24 they reset to 0. All of this rollover logic runs automatically inside the interrupt."
+          ],
+          "bullets": [
+            "TMR1H = 0x86 and TMR1L = 0x02 are pre-calculated preload values for a 50 ms overflow.",
+            "TMR1IF = 0 clears the interrupt flag so the next overflow can be detected.",
+            "GIE = 1 (Global Interrupt Enable) turns interrupts on.",
+            "The ISR runs independently of the main loop, so the clock updates in the background."
+          ]
+        }
+      },
+      "buttons": {
+        "title": "Main Loop & Button Controls",
+        "explanation": {
+          "title": "What are buttons and debounce?",
+          "paragraphs": [
+            "Mechanical buttons bounce briefly when pressed, generating multiple 'pressed' signals. To avoid unwanted repeated actions, we use rising-edge detection: the code reacts only when the signal transitions from 0 to 1.",
+            "Variables like `b1_eski` and `b2_eski` store the previous button state. The condition `if (B_SAAT_ARTIR == 1 && b1_eski == 0)` fires exactly once per press, because it requires the previous state to be 0 and the current state to be 1. Holding the button down will not increment the value again."
+          ],
+          "bullets": [
+            "Debounce prevents false readings caused by mechanical switch bounce.",
+            "Rising edge: captures the exact moment the signal goes from 0 to 1.",
+            "Hour decrement checks the 0 boundary; decrementing below 0 wraps to 23.",
+            "Minute increment/decrement also updates the hour value on rollover."
+          ]
+        }
+      }
+    }
+  },
+  "footer": {
+    "title": "Project Team — Team 5-56",
+    "members": [
+      "Mehmet Harun Dedecengiz",
+      "Kıraç Çağıl Aslan",
+      "Yusuf Eren Bozkurt",
+      "Alper Tekin"
+    ],
+    "university": "Manisa Celal Bayar University — Electrical & Electronics Engineering & Computer Engineering",
+    "project": "Interdisciplinary Project — 2025-2026",
+    "tags": [
+      "XC8 Compiler",
+      "MPLAB X IDE",
+      "Proteus Simulation",
+      "Next.js 16",
+      "Tailwind CSS",
+      "Zustand",
+      "GSAP",
+      "Framer Motion"
+    ]
+  },
+  "language": {
+    "tr": "Türkçe",
+    "en": "English"
+  }
+}

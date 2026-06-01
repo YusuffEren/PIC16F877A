@@ -1,8 +1,22 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export const Footer: React.FC = () => {
+  const t = useTranslations('footer');
+
+  const tags = [
+    t('tags.0'),
+    t('tags.1'),
+    t('tags.2'),
+    t('tags.3'),
+    t('tags.4'),
+    t('tags.5'),
+    t('tags.6'),
+    t('tags.7'),
+  ];
+
   return (
     <footer className="relative bg-slate-950 border-t border-slate-800/60 py-16 overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-cyan-500/3 rounded-full blur-[80px] pointer-events-none" />
@@ -15,7 +29,7 @@ export const Footer: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          Proje Ekibi — Takım 5-56
+          {t('title')}
         </motion.h4>
 
         <motion.div
@@ -25,10 +39,10 @@ export const Footer: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <span className="hover:text-cyan-400 transition-colors">Mehmet Harun Dedecengiz</span>
-          <span className="hover:text-cyan-400 transition-colors">Kıraç Çağıl Aslan</span>
-          <span className="hover:text-cyan-400 transition-colors">Yusuf Eren Bozkurt</span>
-          <span className="hover:text-cyan-400 transition-colors">Alper Tekin</span>
+          <span className="hover:text-cyan-400 transition-colors">{t('members.0')}</span>
+          <span className="hover:text-cyan-400 transition-colors">{t('members.1')}</span>
+          <span className="hover:text-cyan-400 transition-colors">{t('members.2')}</span>
+          <span className="hover:text-cyan-400 transition-colors">{t('members.3')}</span>
         </motion.div>
 
         <motion.div
@@ -38,7 +52,7 @@ export const Footer: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {['XC8 Derleyici', 'MPLAB X IDE', 'Proteus Simülasyon', 'Next.js 16', 'Tailwind CSS', 'Zustand', 'GSAP', 'Framer Motion'].map((tag) => (
+          {tags.map((tag) => (
             <span key={tag} className="px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 hover:border-cyan-500/30 hover:text-cyan-300 transition-all">
               {tag}
             </span>
@@ -46,9 +60,9 @@ export const Footer: React.FC = () => {
         </motion.div>
 
         <p className="text-xs text-slate-600 leading-relaxed">
-          Manisa Celal Bayar Üniversitesi — Elektrik Elektronik Mühendisliği & Bilgisayar Mühendisliği
+          {t('university')}
           <br />
-          Disiplinler Arası Proje — 2025-2026
+          {t('project')}
         </p>
       </div>
     </footer>

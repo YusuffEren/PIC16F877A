@@ -1,12 +1,14 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { LcdDisplay } from '@/components/hardware/LcdDisplay';
 import { HwButton } from '@/components/hardware/HwButton';
 import { useClockStore } from '@/store/useClockStore';
 import { useInterruptTimer } from '@/hooks/useInterruptTimer';
 
 export const CircuitSimulation: React.FC = () => {
+  const t = useTranslations('simulation');
   useInterruptTimer();
   const isRunning = useClockStore((s) => s.isRunning);
   const toggleRunning = useClockStore((s) => s.toggleRunning);
@@ -25,7 +27,7 @@ export const CircuitSimulation: React.FC = () => {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
         >
-          İnteraktif <span className="text-cyan-400">Simülasyon</span>
+          {t('title').split(' ').slice(0, -1).join(' ')} <span className="text-cyan-400">{t('title').split(' ').slice(-1)}</span>
         </motion.h2>
         <motion.p
           className="text-slate-400 max-w-2xl mx-auto mb-14 text-lg"
@@ -34,8 +36,7 @@ export const CircuitSimulation: React.FC = () => {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Donanım bileşenleriyle etkileşime geçin. Butonlara basarak saati ayarlayın.
-          LCD ekran, PIC16F877A&apos;nın Timer1 kesme mantığını taklit ederek çalışır.
+          {t('description')}
         </motion.p>
 
         {/* Glass panel with gradient border */}
@@ -48,7 +49,6 @@ export const CircuitSimulation: React.FC = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-blue-600/10 rounded-3xl pointer-events-none" />
           <div className="relative bg-slate-950/60 border border-slate-800/50 rounded-[22px] p-8 md:p-12">
-            {/* Subtle top light reflection */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
 
             {/* Status bar */}
@@ -59,14 +59,14 @@ export const CircuitSimulation: React.FC = () => {
                   <span className={`relative inline-flex rounded-full h-3 w-3 ${isRunning ? 'bg-green-500' : 'bg-red-500'}`} />
                 </span>
                 <span className="text-xs text-slate-300 font-mono uppercase tracking-wider">
-                  {isRunning ? 'Timer1 Aktif (50ms)' : 'Durduruldu'}
+                  {isRunning ? t('status.active') : t('status.stopped')}
                 </span>
               </div>
               <button
                 onClick={toggleRunning}
                 className="text-[11px] uppercase tracking-wider px-5 py-2.5 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-200 transition-all border border-slate-600 hover:border-slate-500 shadow-lg active:scale-95"
               >
-                {isRunning ? 'Durdur' : 'Başlat'}
+                {isRunning ? t('status.stop') : t('status.start')}
               </button>
             </div>
 
@@ -78,7 +78,12 @@ export const CircuitSimulation: React.FC = () => {
             {/* Buttons */}
             <div className="flex flex-wrap justify-center gap-6 md:gap-10">
               {[1, 2, 3, 4].map((id) => {
-                const labels: Record<number, string> = { 1: 'Saat +', 2: 'Saat -', 3: 'Dak +', 4: 'Dak -' };
+                const labels: Record<number, string> = {
+                  1: t('labels.hourUp'),
+                  2: t('labels.hourDown'),
+                  3: t('labels.minUp'),
+                  4: t('labels.minDown'),
+                };
                 return (
                   <motion.div
                     key={id}
@@ -95,16 +100,16 @@ export const CircuitSimulation: React.FC = () => {
             {/* Info chips */}
             <div className="flex flex-wrap justify-center gap-3 mt-10">
               <span className="px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-400 font-mono shadow-sm">
-                Kesme Sayacı: {kesmeSayaci}/20
+                {t('chips.interruptCounter')}: {kesmeSayaci}/20
               </span>
               <span className="px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-400 font-mono shadow-sm">
-                _XTAL_FREQ: 20MHz
+                {t('chips.xtalFreq')}
               </span>
               <span className="px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-400 font-mono shadow-sm">
-                4-bit LCD Modu
+                {t('chips.lcdMode')}
               </span>
               <span className="px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-400 font-mono shadow-sm">
-                XC8 Compiler
+                {t('chips.compiler')}
               </span>
             </div>
           </div>

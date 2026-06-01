@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Breadboard } from '@/components/hardware/Breadboard';
 import { Pic16f877a } from '@/components/hardware/Pic16f877a';
 import { LcdDisplay } from '@/components/hardware/LcdDisplay';
@@ -9,6 +10,7 @@ import { Crystal } from '@/components/hardware/Crystal';
 import { HwButton } from '@/components/hardware/HwButton';
 
 export const Hero: React.FC = () => {
+  const t = useTranslations('hero');
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [booted, setBooted] = useState(false);
@@ -33,7 +35,7 @@ export const Hero: React.FC = () => {
     return () => ctx.revert();
   }, []);
 
-  const titleText = 'PIC16F877A Dijital Saat';
+  const titleText = t('title');
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center bg-slate-950 overflow-hidden">
@@ -54,8 +56,7 @@ export const Hero: React.FC = () => {
             ))}
           </h1>
           <p className="hero-subtitle text-slate-400 text-lg max-w-2xl mx-auto" style={{ opacity: 0 }}>
-            Gerçek zamanlı saat sisteminin web tabanlı interaktif simülasyonu.
-            Mikrodenetleyici, LCD ekran ve buton kontrollerini tarayıcıda deneyimleyin.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -95,39 +96,35 @@ export const Hero: React.FC = () => {
 
           {/* Wire traces from buttons toward PIC */}
           <svg className="hero-trace absolute inset-0 w-full h-full pointer-events-none opacity-0 z-[5]">
-            {/* Trace from Saat+ button */}
             <path d="M 170 370 L 170 320 L 320 320 L 320 220" fill="none" stroke="#34d399" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
-            {/* Trace from Saat- button */}
             <path d="M 275 370 L 275 330 L 340 330 L 340 220" fill="none" stroke="#f87171" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
-            {/* Trace from Dak+ button */}
             <path d="M 465 370 L 465 330 L 400 330 L 400 220" fill="none" stroke="#fbbf24" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
-            {/* Trace from Dak- button */}
             <path d="M 570 370 L 570 320 L 420 320 L 420 220" fill="none" stroke="#a78bfa" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
           </svg>
 
           {/* Buttons row with callout badges */}
           <div className="hero-buttons absolute left-[12%] bottom-[4%] w-[16%] h-[18%] opacity-0 z-20">
-            <HwButton label="Saat Arttır" btnId={1} />
+            <HwButton label={t('labels.hourUp')} btnId={1} />
             <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[9px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap">
-              RB0 → Saat+
+              {t('badges.hourUp')}
             </div>
           </div>
           <div className="hero-buttons absolute left-[29%] bottom-[4%] w-[16%] h-[18%] opacity-0 z-20">
-            <HwButton label="Saat Azalt" btnId={2} />
+            <HwButton label={t('labels.hourDown')} btnId={2} />
             <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-red-500/10 border border-red-500/30 text-red-300 text-[9px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap">
-              RB1 → Saat−
+              {t('badges.hourDown')}
             </div>
           </div>
           <div className="hero-buttons absolute left-[55%] bottom-[4%] w-[16%] h-[18%] opacity-0 z-20">
-            <HwButton label="Dakika Arttır" btnId={3} />
+            <HwButton label={t('labels.minUp')} btnId={3} />
             <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[9px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap">
-              RB2 → Dak+
+              {t('badges.minUp')}
             </div>
           </div>
           <div className="hero-buttons absolute left-[72%] bottom-[4%] w-[16%] h-[18%] opacity-0 z-20">
-            <HwButton label="Dakika Azalt" btnId={4} />
+            <HwButton label={t('labels.minDown')} btnId={4} />
             <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-violet-500/10 border border-violet-500/30 text-violet-300 text-[9px] font-mono px-2 py-0.5 rounded-full whitespace-nowrap">
-              RB3 → Dak−
+              {t('badges.minDown')}
             </div>
           </div>
         </div>
@@ -140,16 +137,16 @@ export const Hero: React.FC = () => {
           transition={{ delay: 2, duration: 0.6 }}
         >
           <span className="flex items-center gap-2 text-xs text-slate-500 font-mono bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" /> Saat Arttır (RB0)
+            <span className="w-2 h-2 rounded-full bg-emerald-400" /> {t('legend.hourUp')}
           </span>
           <span className="flex items-center gap-2 text-xs text-slate-500 font-mono bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-red-400" /> Saat Azalt (RB1)
+            <span className="w-2 h-2 rounded-full bg-red-400" /> {t('legend.hourDown')}
           </span>
           <span className="flex items-center gap-2 text-xs text-slate-500 font-mono bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-amber-400" /> Dakika Arttır (RB2)
+            <span className="w-2 h-2 rounded-full bg-amber-400" /> {t('legend.minUp')}
           </span>
           <span className="flex items-center gap-2 text-xs text-slate-500 font-mono bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-violet-400" /> Dakika Azalt (RB3)
+            <span className="w-2 h-2 rounded-full bg-violet-400" /> {t('legend.minDown')}
           </span>
         </motion.div>
       </div>

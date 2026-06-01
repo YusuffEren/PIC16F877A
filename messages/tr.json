@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "title": "PIC16F877A Dijital Saat Simülasyonu",
+    "description": "Gerçek zamanlı saat sisteminin web tabanlı interaktif simülasyonu. PIC16F877A, LCD ekran ve buton kontrollerini deneyimleyin."
+  },
+  "nav": {
+    "langSwitcher": "Dil değiştir"
+  },
+  "hero": {
+    "title": "PIC16F877A Dijital Saat",
+    "subtitle": "Gerçek zamanlı saat sisteminin web tabanlı interaktif simülasyonu. Mikrodenetleyici, LCD ekran ve buton kontrollerini tarayıcıda deneyimleyin.",
+    "labels": {
+      "hourUp": "Saat Arttır",
+      "hourDown": "Saat Azalt",
+      "minUp": "Dakika Arttır",
+      "minDown": "Dakika Azalt"
+    },
+    "badges": {
+      "hourUp": "RB0 → Saat+",
+      "hourDown": "RB1 → Saat−",
+      "minUp": "RB2 → Dak+",
+      "minDown": "RB3 → Dak−"
+    },
+    "legend": {
+      "hourUp": "Saat Arttır (RB0)",
+      "hourDown": "Saat Azalt (RB1)",
+      "minUp": "Dakika Arttır (RB2)",
+      "minDown": "Dakika Azalt (RB3)"
+    }
+  },
+  "simulation": {
+    "title": "İnteraktif Simülasyon",
+    "description": "Donanım bileşenleriyle etkileşime geçin. Butonlara basarak saati ayarlayın. LCD ekran, PIC16F877A'nın Timer1 kesme mantığını taklit ederek çalışır.",
+    "status": {
+      "active": "Timer1 Aktif (50ms)",
+      "stopped": "Durduruldu",
+      "stop": "Durdur",
+      "start": "Başlat"
+    },
+    "labels": {
+      "hourUp": "Saat Arttır",
+      "hourDown": "Saat Azalt",
+      "minUp": "Dakika Arttır",
+      "minDown": "Dakika Azalt"
+    },
+    "chips": {
+      "interruptCounter": "Kesme Sayacı",
+      "xtalFreq": "_XTAL_FREQ: 20MHz",
+      "lcdMode": "4-bit LCD Modu",
+      "compiler": "XC8 Compiler"
+    }
+  },
+  "walkthrough": {
+    "title": "Kod ve Donanım Yürüyüşü",
+    "description": "Aşağı kaydırarak C kodunun her bölümünü inceleyin. Sol taraftaki devre parçaları, ekrandaki ilgili kod bloğuyla senkronize olarak vurgulanır.",
+    "hardwarePanel": "Donanım Görünümü",
+    "sections": {
+      "config": {
+        "title": "Konfigürasyon ve Pin Tanımları",
+        "explanation": {
+          "title": "Bu bölüm ne yapıyor?",
+          "paragraphs": [
+            "Mikrodenetleyici çalışmaya başlamadan önce donanımın nasıl davranacağını belirten konfigürasyon bitleri ayarlanır. `#pragma config` satırları ile osilatör modu (HS — High Speed), watchdog timer (WDTE) ve güç açılış zamanlayıcısı (PWRTE) gibi temel sistem ayarları yapılır.",
+            "Pin tanımları sayesinde kodun geri kalanında `RS`, `EN`, `D4` gibi anlamlı isimler kullanılarak donanım okunabilir hale gelir. LCD ekran PORTD ve PORTC üzerinden, butonlar ise PORTB (RB0–RB3) üzerinden kontrol edilir. Böylece yazılım ile donanım arasında birebir eşleme sağlanır."
+          ],
+          "bullets": [
+            "HS modu, 20 MHz kristal ile yüksek hızda çalışmayı sağlar.",
+            "WDTE = OFF ile cihaz kendi kendine sıfırlanmaz.",
+            "LVP = OFF ile düşük voltaj programlama devre dışı bırakılır.",
+            "Butonlar `TRISB = 0x0F` ile giriş (input), LCD pinleri `TRISD = 0x00` ile çıkış (output) olarak ayarlanır."
+          ]
+        }
+      },
+      "lcd": {
+        "title": "LCD Hazırlık ve Komut Fonksiyonları",
+        "explanation": {
+          "title": "LCD nasıl çalışıyor?",
+          "paragraphs": [
+            "LCD ekran 4-bit modda çalıştırılmıştır. Bu, 8 veri hattı yerine sadece D4–D7 pinleri kullanılarak PIC üzerinde pin tasarrufu sağlar. Her komut veya karakter, önce yüksek 4 bit sonra düşük 4 bit olarak iki parça halinde gönderilir.",
+            "`Lcd_Hazirla()` fonksiyonu ekranı başlatmak için gerekli sıralı komutları (0x30, 0x20, 0x28, 0x0C, 0x06, 0x01) gönderir. `0x28` 4-bit modu ve 2 satırı, `0x0C` ekranı açıp imleci gizler, `0x01` ekranı temizler. `Lcd_Git()` ise satır ve sütun bazında imleç konumlandırması yapar."
+          ],
+          "bullets": [
+            "4-bit mod: Veri ikiye bölünerek gönderilir, 8 pine ihtiyaç duyulmaz.",
+            "RS = 0 → Komut, RS = 1 → Veri (karakter) gönderimi.",
+            "EN pininde kısa bir darbe (pulse) ile LCD komutu okur.",
+            "Her komut sonrası 2ms gecikme, LCD'in işlemi tamamlaması için beklenir."
+          ]
+        }
+      },
+      "timer": {
+        "title": "Timer1 Kesmesi (Interrupt)",
+        "explanation": {
+          "title": "Timer1 kesmesi nasıl zamanı sayıyor?",
+          "paragraphs": [
+            "20 MHz kristal ile Timer1, bölücü (prescaler) 1:8 ayarında yaklaşık her 50 milisaniyede bir taşma (overflow) yapar. Kesme servis rutini (`__interrupt`) her taşmada çalışır ve `kesme_sayaci` adlı bir sayaç değişkenini bir artırır.",
+            "Sayaç 20'ye ulaştığında (20 × 50 ms = 1000 ms = 1 saniye) gerçek bir saniye geçmiş olur. Bu anda saniye değeri artırılır, 60'ı geçerse dakiye, dakika 60'ı geçerse saat artırılır. Saat 24'e ulaştığında sıfırlanarak 00:00'a döner. Tüm bu taşıma kontrolleri kesme içinde otomatik olarak yapılır."
+          ],
+          "bullets": [
+            "TMR1H = 0x86 ve TMR1L = 0x02 değerleri, 50 ms taşma süresi için önceden hesaplanmış başlangıç değerleridir.",
+            "TMR1IF = 0 ile kesme bayrağı temizlenir, bir sonraki taşmayı bekler.",
+            "GIE = 1 (Global Interrupt Enable) ile kesmeler aktif hale getirilir.",
+            "Kesme rutini, main döngüsünden bağımsız çalışır; bu sayede saat arka planda güncellenir."
+          ]
+        }
+      },
+      "buttons": {
+        "title": "Main Loop ve Buton Kontrolleri",
+        "explanation": {
+          "title": "Butonlar ve debounce (bas-çek) nedir?",
+          "paragraphs": [
+            "Mekanik butonlar basıldığında kısa süreli titreşimler (sönümlemeler) yapar. Bu titreşimler mikrodenetleyiciye çok sayıda 'basılıp bırakıldı' sinyali gönderebilir. Bu istenmeyen tekrarları önlemek için 'yükselen kenar algılama' (rising-edge detection) kullanılır.",
+            "`b1_eski`, `b2_eski` gibi değişkenler butonun bir önceki durumunu saklar. `if (B_SAAT_ARTIR == 1 && b1_eski == 0)` koşulu, buton yeni basıldığında (önceki durum 0, şu anki durum 1) sadece bir kez işlem yapılmasını sağlar. Böylece butona basılı tutulsa bile değer sadece bir defa artar veya azalır."
+          ],
+          "bullets": [
+            "Bas-çek (debounce): Butonun mekanik titreşimlerinden kaynaklanan yanlış okumaları engeller.",
+            "Yükselen kenar: Sinyalin 0'dan 1'e geçtiği anı yakalar.",
+            "Saat azaltma işleminde 0 sınırı kontrol edilir; 0'dan azaltılırsa 23'e döner (modüler aritmetik).",
+            "Dakika artırma/eksiltme işlemlerinde saat değeri de taşma taşıma kontrolü ile güncellenir."
+          ]
+        }
+      }
+    }
+  },
+  "footer": {
+    "title": "Proje Ekibi — Takım 5-56",
+    "members": [
+      "Mehmet Harun Dedecengiz",
+      "Kıraç Çağıl Aslan",
+      "Yusuf Eren Bozkurt",
+      "Alper Tekin"
+    ],
+    "university": "Manisa Celal Bayar Üniversitesi — Elektrik Elektronik Mühendisliği & Bilgisayar Mühendisliği",
+    "project": "Disiplinler Arası Proje — 2025-2026",
+    "tags": [
+      "XC8 Derleyici",
+      "MPLAB X IDE",
+      "Proteus Simülasyon",
+      "Next.js 16",
+      "Tailwind CSS",
+      "Zustand",
+      "GSAP",
+      "Framer Motion"
+    ]
+  },
+  "language": {
+    "tr": "Türkçe",
+    "en": "English"
+  }
+}
